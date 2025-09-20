@@ -45,8 +45,6 @@ st.markdown("""
     }
     /* Improve chart appearance */
     .js-plotly-plot {
-        border: 1px solid #e1e5e9;
-        border-radius: 0.5rem;
     }
 </style>
 """, unsafe_allow_html=True)
