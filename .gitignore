@@ -1,0 +1,4 @@
+# generic gitignore for python
+.DS_Store
+*.pyc
+__pycache__/
