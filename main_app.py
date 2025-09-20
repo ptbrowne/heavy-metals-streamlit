@@ -43,9 +43,6 @@ st.markdown("""
     .sidebar .sidebar-content {
         background-color: #f8f9fa;
     }
-    /* Improve chart appearance */
-    .js-plotly-plot {
-    }
 </style>
 """, unsafe_allow_html=True)
 
