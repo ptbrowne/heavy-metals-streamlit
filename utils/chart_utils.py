@@ -13,9 +13,9 @@ def create_top_municipalities_chart(metal_data, metal_name):
         
     fig = px.bar(
         metal_data, 
-        x='mean', 
-        y='Municipality',
-        orientation='h',
+        x='Municipality', 
+        y='mean',
+        orientation='v',
         title=f"{metal_name.title()}",
         labels={'mean': 'Avg Concentration (mg/kg DM)', 'Municipality': ''},
         color='mean',
@@ -23,8 +23,8 @@ def create_top_municipalities_chart(metal_data, metal_name):
     )
     fig.update_layout(height=300, showlegend=False)
     fig.update_traces(
-        hovertemplate="<b>%{y}</b><br>" +
-                    "Avg: %{x:.1f} mg/kg DM<br>" +
+        hovertemplate="<b>%{x}</b><br>" +
+                    "Avg: %{y:.1f} mg/kg DM<br>" +
                     "<extra></extra>"
     )
     return fig
@@ -113,7 +113,7 @@ def create_municipality_time_series_chart(muni_data, selected_heavy_metals, muni
     colors = px.colors.qualitative.Set1
     
     for i, metal in enumerate(selected_heavy_metals):
-        metal_data = muni_data[muni_data['Heavy metal'] == metal]
+        metal_data = muni_data[muni_data['Heavy metal'] == metal].sort_values('Year')
         
         fig.add_trace(go.Scatter(
             x=metal_data['Year'],

@@ -8,21 +8,46 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
     """Create sidebar filters for the dashboard"""
     st.sidebar.header("🔍 Filters")
     
+        # Page-specific filters
+    additional_filters = {}
+    
+    selected_municipalities = []
+    if page_type == "municipality":
+        selected_municipalities = st.sidebar.multiselect(
+            "Select Municipalities for Detail Analysis:",
+            options=municipalities,
+            default=[municipalities[0]] if municipalities else [],
+            help="Select municipalities for detailed analysis"
+        )
+    
+    elif page_type == "heavy_metal":
+        st.sidebar.subheader("Heavy Metal-specific filters")
+        selected_heavy_metal_detail = st.sidebar.selectbox(
+            "Select Heavy Metal for Detail Analysis:",
+            options=heavy_metals,
+            help="Select one heavy metal for detailed analysis"
+        )
+        additional_filters['selected_heavy_metal_detail'] = selected_heavy_metal_detail
+
     # Common filters for all pages
-    selected_municipalities = st.sidebar.multiselect(
-        "Select Municipalities:",
-        options=municipalities,
-        default=[],
-        help="Leave empty to include all municipalities"
-    )
+    if not selected_municipalities:
+        selected_municipalities = st.sidebar.multiselect(
+            "Select Municipalities:",
+            options=municipalities,
+            default=[],
+            help="Leave empty to include all municipalities"
+        )
     
-    selected_heavy_metals = st.sidebar.multiselect(
-        "Select Heavy Metals:",
-        options=heavy_metals,
-        default=heavy_metals[:3],  # Default to first 3 heavy metals
-        help="Select one or more heavy metals to analyze"
-    )
-    
+    if page_type == "overview" or page_type == 'municipality':
+        selected_heavy_metals = st.sidebar.multiselect(
+            "Select Heavy Metals:",
+            options=heavy_metals,
+            default=heavy_metals[:3],  # Default to first 3 heavy metals
+            help="Select one or more heavy metals to analyze"
+        )
+    else:
+        selected_heavy_metals = []
+        
     selected_land_uses = st.sidebar.multiselect(
         "Select Land Uses:",
         options=land_uses,
@@ -38,27 +63,7 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
         help="Select the time period for analysis"
     )
     
-    # Page-specific filters
-    additional_filters = {}
-    
-    if page_type == "municipality":
-        st.sidebar.subheader("Municipality-specific filters")
-        if not selected_municipalities:
-            selected_municipalities = st.sidebar.multiselect(
-                "Select Municipalities for Detail Analysis:",
-                options=municipalities,
-                default=[municipalities[0]] if municipalities else [],
-                help="Select municipalities for detailed analysis"
-            )
-    
-    elif page_type == "heavy_metal":
-        st.sidebar.subheader("Heavy Metal-specific filters")
-        selected_heavy_metal_detail = st.sidebar.selectbox(
-            "Select Heavy Metal for Detail Analysis:",
-            options=selected_heavy_metals if selected_heavy_metals else heavy_metals,
-            help="Select one heavy metal for detailed analysis"
-        )
-        additional_filters['selected_heavy_metal_detail'] = selected_heavy_metal_detail
+
     
     return {
         'municipalities': selected_municipalities,
@@ -103,21 +108,20 @@ def display_footer(year_min, year_max, num_municipalities):
     """Display app footer with information"""
     st.markdown("---")
     st.markdown(f"""
-    <div style="text-align: center; color: #666; padding: 2rem;">
-        <h4>About This Dashboard</h4>
-        <p>This dashboard provides comprehensive analysis of heavy metal concentrations in Swiss soils. 
-        The data includes measurements from various municipalities across different land uses and time periods.</p>
-        
-        <p><strong>Heavy Metals Analyzed:</strong> Cadmium, Chromium, Cobalt, Copper, Lead, Mercury, Nickel, Zinc</p>
-        <p><strong>Data Period:</strong> {year_min} - {year_max}</p>
-        <p><strong>Municipalities:</strong> {num_municipalities} locations across Switzerland</p>
-        
-        <p style="font-size: 0.9em; margin-top: 1rem;">
-            💡 <strong>Usage Tips:</strong><br>
-            • Use the sidebar filters to customize your analysis<br>
-            • Navigate between pages using the menu<br>
-            • Hover over charts for detailed information<br>
-            • Compare multiple municipalities and heavy metals simultaneously
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+### About This Dashboard
+
+This dashboard provides comprehensive analysis of heavy metal concentrations in Swiss soils. 
+The data includes measurements from various municipalities across different land uses and time periods.
+
+**Heavy Metals Analyzed:** Cadmium, Chromium, Cobalt, Copper, Lead, Mercury, Nickel, Zinc
+
+**Data Period:** {year_min} - {year_max}
+
+**Municipalities:** {num_municipalities} locations across Switzerland
+
+💡 **Usage Tips:**
+- Use the sidebar filters to customize your analysis
+- Navigate between pages using the menu
+- Hover over charts for detailed information
+- Compare multiple municipalities and heavy metals simultaneously
+    """)
