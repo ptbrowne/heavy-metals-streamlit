@@ -6,7 +6,7 @@ import pandas as pd
 from utils.data_utils import calculate_municipality_averages, calculate_national_averages
 from utils.chart_utils import (
     create_top_municipalities_chart, 
-    create_time_series_chart, 
+    create_metal_time_series_chart, 
     create_land_use_breakdown_chart
 )
 from utils.filter_utils import display_page_header, display_section_header, check_data_availability
@@ -56,9 +56,17 @@ def show_overview_page(filtered_df, filters):
     yearly_data = filtered_df.groupby(['Year', 'Heavy metal', 'Municipality'])['Heavy metal concentration (mg/kg DM)'].mean().reset_index()
     national_avg = calculate_national_averages(filtered_df)
     
-    # Create time series plot
-    fig = create_time_series_chart(yearly_data, national_avg, selected_heavy_metals)
-    st.plotly_chart(fig, width="stretch")
+    # Create time series plots - one for each heavy metal in a grid
+    nb_cols = 2
+    cols = st.columns(min(len(selected_heavy_metals), nb_cols))
+    for i, metal in enumerate(selected_heavy_metals):
+        with cols[i % nb_cols]:
+            metal_yearly_data = yearly_data[yearly_data['Heavy metal'] == metal]
+            metal_national_avg = national_avg[national_avg['Heavy metal'] == metal]
+            
+            fig = create_metal_time_series_chart(metal_yearly_data, metal_national_avg, metal)
+            if fig:
+                st.plotly_chart(fig, width="stretch")
     
     st.markdown("---")
     

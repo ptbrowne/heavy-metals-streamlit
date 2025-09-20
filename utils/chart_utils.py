@@ -30,46 +30,46 @@ def create_top_municipalities_chart(metal_data, metal_name):
     return fig
 
 
-def create_time_series_chart(yearly_data, national_avg, selected_heavy_metals):
+def create_metal_time_series_chart(yearly_data, national_avg, metal):
     """Create time series comparison chart"""
     fig = go.Figure()
     colors = px.colors.qualitative.Set1
     
     # Add municipality lines
-    for i, metal in enumerate(selected_heavy_metals[:3]):  # Limit to 3 metals for readability
-        metal_data = yearly_data[yearly_data['Heavy metal'] == metal]
-        
-        for municipality in metal_data['Municipality'].unique()[:5]:  # Top 5 municipalities
-            muni_data = metal_data[metal_data['Municipality'] == municipality]
-            fig.add_trace(go.Scatter(
-                x=muni_data['Year'],
-                y=muni_data['Heavy metal concentration (mg/kg DM)'],
-                mode='lines+markers',
-                name=f"{municipality} ({metal})",
-                line=dict(width=2),
-                hovertemplate="<b>%{fullData.name}</b><br>" +
-                            "Year: %{x}<br>" +
-                            "Concentration: %{y:.1f} mg/kg DM<br>" +
-                            "<extra></extra>"
-            ))
-        
-        # Add national average line
-        nat_data = national_avg[national_avg['Heavy metal'] == metal]
-        if not nat_data.empty:
-            fig.add_trace(go.Scatter(
-                x=nat_data['Year'],
-                y=nat_data['Heavy metal concentration (mg/kg DM)'],
-                mode='lines',
-                name=f"National Avg ({metal})",
-                line=dict(dash='dash', width=3, color='gray'),
-                hovertemplate="<b>National Average - %{fullData.name}</b><br>" +
-                            "Year: %{x}<br>" +
-                            "Concentration: %{y:.1f} mg/kg DM<br>" +
-                            "<extra></extra>"
-            ))
+    metal_data = yearly_data[yearly_data['Heavy metal'] == metal]
     
+    for municipality in metal_data['Municipality'].unique()[:5]:  # Top 5 municipalities
+        muni_data = metal_data[metal_data['Municipality'] == municipality]
+        fig.add_trace(go.Scatter(
+            x=muni_data['Year'],
+            y=muni_data['Heavy metal concentration (mg/kg DM)'],
+            mode='lines+markers',
+            name=f"{municipality}",
+            line=dict(width=2),
+            hovertemplate="<b>%{fullData.name}</b><br>" +
+                        "Year: %{x}<br>" +
+                        "Concentration: %{y:.1f} mg/kg DM<br>" +
+                        "<extra></extra>"
+        ))
+    
+    # Add national average line
+    nat_data = national_avg[national_avg['Heavy metal'] == metal]
+    if not nat_data.empty:
+        fig.add_trace(go.Scatter(
+            x=nat_data['Year'],
+            y=nat_data['Heavy metal concentration (mg/kg DM)'],
+            mode='lines',
+            name=f"National Avg",
+            line=dict(dash='dash', width=3, color='gray'),
+            hovertemplate="<b>National Average - %{fullData.name}</b><br>" +
+                        "Year: %{x}<br>" +
+                        "Concentration: %{y:.1f} mg/kg DM<br>" +
+                        "<extra></extra>"
+        ))
+    
+    titlecase_metal = metal.title() if not metal.isupper() else metal
     fig.update_layout(
-        title="Heavy Metal Concentrations Over Time",
+        title=f"{titlecase_metal} Concentrations Over Time",
         xaxis_title="Year",
         yaxis_title="Concentration (mg/kg DM)",
         hovermode='x unified',
