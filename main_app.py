@@ -51,7 +51,13 @@ st.markdown("""
 def get_app_data():
     """Load and cache app data"""
     df = load_data()
-    municipalities, heavy_metals, land_uses, year_min, year_max = get_unique_values(df)
+    uniques = get_unique_values(df)
+    municipalities = uniques['municipalities']
+    heavy_metals = uniques['heavy_metals']
+    land_uses = uniques['land_uses']
+    year_min = uniques['year_min']
+    year_max = uniques['year_max']
+    print('app data', municipalities, heavy_metals, land_uses, year_min, year_max)
     return df, municipalities, heavy_metals, land_uses, year_min, year_max
 
 # Initialize data
