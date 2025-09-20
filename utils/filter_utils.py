@@ -17,6 +17,7 @@ Supported query parameters:
 """
 import streamlit as st
 import json
+from urllib.parse import urlencode
 
 
 def get_filters_from_query_params():
@@ -58,38 +59,123 @@ def get_filters_from_query_params():
     return filters
 
 
+def link_with_filters(page, keep_current_filters=False, **override_filters):
+    """
+    Create a URL link to a specific page with optional filter parameters
+    
+    Args:
+        page (str): Target page ('overview', 'municipality_detail_page', 'heavy_metal_detail_page')
+        keep_current_filters (bool): Whether to preserve current filters (default: False)
+        **override_filters: Specific filter values to set (e.g., municipalities=['Zurich'])
+    
+    Returns:
+        str: URL with query parameters
+    
+    Example:
+        link_with_filters(page='municipality_detail_page', municipalities=['Zurich'])
+        link_with_filters(page='heavy_metal_detail_page', keep_current_filters=True, selected_heavy_metal_detail='Cadmium')
+    """
+    # Page mapping for the navigation
+    page_mapping = {
+        'overview': '',  # Default page
+        'municipality_detail_page': 'municipality_detail_page',
+        'heavy_metal_detail_page': 'heavy_metal_detail_page'
+    }
+    
+    # Get base URL
+    if hasattr(st, 'get_option') and st.get_option('server.baseUrlPath'):
+        base_url = st.get_option('server.baseUrlPath')
+    else:
+        base_url = ''
+    
+    # Start with current filters if requested
+    filters = {}
+    if keep_current_filters:
+        filters = get_filters_from_query_params()
+    
+    # Apply override filters
+    filters.update(override_filters)
+    
+    # Serialize filters to query parameters
+    params = serialize_filters_to_params(filters)
+    
+    # Build query string
+    query_string = ''
+    if params:
+        query_string = '?' + urlencode(params)
+    
+    # Build full URL
+    page_path = page_mapping.get(page, '')
+    if page_path:
+        url = f"{base_url}/{page_path}{query_string}"
+    else:
+        url = f"{base_url}/{query_string}"
+    
+    return url
+
+
+def serialize_filters_to_params(filters):
+    """Convert filters dictionary to query parameter string format"""
+    params = {}
+    
+    # Serialize municipalities
+    if filters.get('municipalities'):
+        params['municipalities'] = ','.join(filters['municipalities'])
+    
+    # Serialize heavy metals
+    if filters.get('heavy_metals'):
+        params['heavy_metals'] = ','.join(filters['heavy_metals'])
+    
+    # Serialize land uses
+    if filters.get('land_uses'):
+        params['land_uses'] = ','.join(filters['land_uses'])
+    
+    # Serialize year range
+    if filters.get('year_range'):
+        year_min, year_max = filters['year_range']
+        params['year_range'] = f"{year_min},{year_max}"
+    
+    # Serialize selected heavy metal detail
+    if filters.get('selected_heavy_metal_detail'):
+        params['selected_heavy_metal_detail'] = filters['selected_heavy_metal_detail']
+    
+    return params
+
+
 def update_query_params(filters):
     """Update query parameters based on current filter values"""
     try:
+        # Get serialized parameters
+        params = serialize_filters_to_params(filters)
+        
         # Update municipalities
-        if filters.get('municipalities'):
-            st.query_params['municipalities'] = ','.join(filters['municipalities'])
+        if 'municipalities' in params:
+            st.query_params['municipalities'] = params['municipalities']
         else:
             if 'municipalities' in st.query_params:
                 del st.query_params['municipalities']
         
         # Update heavy metals
-        if filters.get('heavy_metals'):
-            st.query_params['heavy_metals'] = ','.join(filters['heavy_metals'])
+        if 'heavy_metals' in params:
+            st.query_params['heavy_metals'] = params['heavy_metals']
         else:
             if 'heavy_metals' in st.query_params:
                 del st.query_params['heavy_metals']
         
         # Update land uses
-        if filters.get('land_uses'):
-            st.query_params['land_uses'] = ','.join(filters['land_uses'])
+        if 'land_uses' in params:
+            st.query_params['land_uses'] = params['land_uses']
         else:
             if 'land_uses' in st.query_params:
                 del st.query_params['land_uses']
         
         # Update year range
-        if filters.get('year_range'):
-            year_min, year_max = filters['year_range']
-            st.query_params['year_range'] = f"{year_min},{year_max}"
+        if 'year_range' in params:
+            st.query_params['year_range'] = params['year_range']
         
         # Update selected heavy metal detail
-        if filters.get('selected_heavy_metal_detail'):
-            st.query_params['selected_heavy_metal_detail'] = filters['selected_heavy_metal_detail']
+        if 'selected_heavy_metal_detail' in params:
+            st.query_params['selected_heavy_metal_detail'] = params['selected_heavy_metal_detail']
         else:
             if 'selected_heavy_metal_detail' in st.query_params:
                 del st.query_params['selected_heavy_metal_detail']
@@ -158,7 +244,7 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
             key="municipalities_common"
         )
     
-    if page_type == "overview" or page_type == 'municipality':
+    if page_type == "overview" or page_type == 'municipality' or page_type == 'map':
         # Get default from query params or use first 3 heavy metals
         default_heavy_metals = saved_filters.get('heavy_metals', heavy_metals[:3] if len(heavy_metals) >= 3 else heavy_metals)
         # Ensure default heavy metals exist in the available options

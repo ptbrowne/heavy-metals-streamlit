@@ -8,6 +8,7 @@ from utils.filter_utils import display_sidebar_filters, display_data_summary, di
 from pages.overview import show_overview_page
 from pages.municipality_detail import show_municipality_detail_page
 from pages.heavy_metal_detail import show_heavy_metal_detail_page
+from pages.map_view import show_map_page
 
 # Page configuration
 st.set_page_config(
@@ -23,7 +24,6 @@ st.markdown("""
     .main-header {
         font-size: 2.5rem;
         color: #2E8B57;
-        text-align: center;
         margin-bottom: 2rem;
     }
     .page-header {
@@ -112,6 +112,19 @@ def heavy_metal_detail_page():
     # Display footer
     display_footer(year_min, year_max, len(municipalities))
 
+def map_view_page():
+    """Map view page"""
+    filters = display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, year_max, "map")
+
+    filtered_df = filter_data(df, None, filters['heavy_metals'], 
+                             filters['land_uses'], filters['year_range'])
+
+    # Show map page content with built-in filters
+    show_map_page(filtered_df, filters)
+    
+    # Display footer
+    display_footer(year_min, year_max, len(municipalities))
+
 # Define pages using st.Page
 overview = st.Page(
     overview_page, 
@@ -132,9 +145,15 @@ heavy_metal_detail = st.Page(
     icon="🧪"
 )
 
+map_view = st.Page(
+    map_view_page, 
+    title="Geographic Map", 
+    icon="🗺️"
+)
+
 # Create navigation
 pg = st.navigation({
-    "Analysis": [overview, municipality_detail, heavy_metal_detail]
+    "Analysis": [overview, municipality_detail, heavy_metal_detail, map_view]
 })
 
 # App title

@@ -32,17 +32,25 @@ def get_unique_values(df):
     land_uses = sorted(df['Land use'].unique())
     year_min = int(df['Year'].min())
     year_max = int(df['Year'].max())
-    
-    return municipalities, heavy_metals, land_uses, year_min, year_max
+
+    return dict(
+        municipalities=municipalities, 
+        heavy_metals=heavy_metals, 
+        land_uses=land_uses, 
+        year_min=year_min, 
+        year_max=year_max
+    )
 
 
 def filter_data(df, municipalities, heavy_metals, land_uses, year_range):
     """Filter data based on selected criteria"""
     filtered_df = df.copy()
     
+    print('filtering data with', municipalities, heavy_metals, land_uses, year_range)
     if municipalities:
         filtered_df = filtered_df[filtered_df['Municipality'].isin(municipalities)]
     if heavy_metals:
+        print('fitlering heavy metals', heavy_metals)
         filtered_df = filtered_df[filtered_df['Heavy metal'].isin(heavy_metals)]
     if land_uses:
         filtered_df = filtered_df[filtered_df['Land use'].isin(land_uses)]

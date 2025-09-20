@@ -9,7 +9,7 @@ from utils.chart_utils import (
     create_metal_time_series_chart, 
     create_land_use_breakdown_chart
 )
-from utils.filter_utils import display_page_header, display_section_header, check_data_availability
+from utils.filter_utils import display_page_header, display_section_header, check_data_availability, link_with_filters
 
 
 def show_overview_page(filtered_df, filters):
@@ -43,6 +43,16 @@ def show_overview_page(filtered_df, filters):
                 fig = create_top_municipalities_chart(metal_data, metal)
                 if fig:
                     st.plotly_chart(fig, width="stretch")
+                    
+                    # Add links to municipality detail page for each top municipality
+                    st.markdown("**View Details:**")
+                    for _, row in metal_data.iterrows():
+                        municipality = row['Municipality']
+                        link_url = link_with_filters(
+                            page='municipality_detail_page', 
+                            municipalities=[municipality]
+                        )
+                        st.markdown(f'<a href="{link_url}" target="_self">🔗 {municipality}</a>', unsafe_allow_html=True)
     
     st.markdown("---")
     
