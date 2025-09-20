@@ -46,11 +46,9 @@ def filter_data(df, municipalities, heavy_metals, land_uses, year_range):
     """Filter data based on selected criteria"""
     filtered_df = df.copy()
     
-    print('filtering data with', municipalities, heavy_metals, land_uses, year_range)
     if municipalities:
         filtered_df = filtered_df[filtered_df['Municipality'].isin(municipalities)]
     if heavy_metals:
-        print('fitlering heavy metals', heavy_metals)
         filtered_df = filtered_df[filtered_df['Heavy metal'].isin(heavy_metals)]
     if land_uses:
         filtered_df = filtered_df[filtered_df['Land use'].isin(land_uses)]

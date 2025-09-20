@@ -19,6 +19,17 @@ A comprehensive Streamlit dashboard for analyzing heavy metal concentrations in 
 - **Time Evolution**: Multi-line chart showing how the heavy metal changed across municipalities
 - **Land Use Comparison**: Box plots showing distribution across land use types
 
+## 🗺️ Map View
+- **Interactive Switzerland Map**: Folium-powered map centered on Switzerland showing municipality locations
+- **Color-Coded Markers**: Circle markers with color intensity representing heavy metal concentration levels (green=low, orange=medium, red=high)
+- **Size-Responsive Markers**: Marker size scales with concentration levels for visual emphasis
+- **Quantile-Based Legend**: Color coding based on percentiles (25th, 50th, 75th) for relative comparison
+- **Interactive Tooltips**: Click markers to see detailed information including concentration, year, and land use
+- **Summary Statistics**: Quick metrics showing municipality count, average/max/min concentrations
+- **Geographic Insights**: Side-by-side comparison of municipalities with highest and lowest concentrations
+- **Municipality Details**: Detailed data table for clicked municipalities showing sampling history
+
+
 ### Prerequisites
 - Python 3.8+
 - [uv](https://github.com/astral-sh/uv) package manager

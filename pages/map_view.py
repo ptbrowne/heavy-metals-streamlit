@@ -253,13 +253,13 @@ def show_map_page(filtered_df, filters):
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("🔝 Highest Concentrations")
+        st.markdown("### 🔝 Highest Concentrations")
         top_municipalities = muni_stats.nlargest(5, 'Average Concentration')
         for _, row in top_municipalities.iterrows():
             st.write(f"**{row['Municipality']}**: {row['Average Concentration']:.2f} mg/kg DM")
     
     with col2:
-        st.subheader("🔻 Lowest Concentrations")
+        st.markdown("### 🔻 Lowest Concentrations")
         bottom_municipalities = muni_stats.nsmallest(5, 'Average Concentration')
         for _, row in bottom_municipalities.iterrows():
             st.write(f"**{row['Municipality']}**: {row['Average Concentration']:.2f} mg/kg DM")
