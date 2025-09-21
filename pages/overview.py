@@ -50,7 +50,8 @@ def show_overview_page(filtered_df, filters):
                         municipality = row['Municipality']
                         link_url = link_with_filters(
                             page='municipality_detail_page', 
-                            municipalities=[municipality]
+                            municipalities=[municipality],
+                            heavy_metals=selected_heavy_metals
                         )
                         st.markdown(f'<a href="{link_url}" target="_self">🔗 {municipality}</a>', unsafe_allow_html=True)
     

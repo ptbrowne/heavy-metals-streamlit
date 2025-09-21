@@ -184,17 +184,28 @@ def update_query_params(filters):
         st.sidebar.error(f"Error updating URL parameters: {str(e)}")
         pass
 
+@st.cache_data(max_entries=1)
+def get_cached_filters_for_page(page):
+    """
+    Get default filter values for a specific page from query parameters.
+    We use caching to avoid the default entries to be reset on every interaction.
+    It solves a bug where selects would reset to default on every interaction.
+    We use max_entries=1 to always cache the latest call only. Since we cache per page,
+    this means we only cache when the page changes.
+    """
+    return get_filters_from_query_params()
 
 def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, year_max, page_type="overview"):
     """Create sidebar filters for the dashboard"""
     st.sidebar.header("🔍 Filters")
     
     # Get current filter values from query parameters
-    saved_filters = get_filters_from_query_params()
+    saved_filters = get_cached_filters_for_page(page_type)
     
     # Page-specific filters
     additional_filters = {}
     
+    # Municipality Filter
     selected_municipalities = []
     if page_type == "municipality":
         # Get default from query params or use first municipality
@@ -211,8 +222,23 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
             help="Select municipalities for detailed analysis",
             key="municipalities_detail"
         )
+    else:
+        # Get default from query params
+        default_municipalities = saved_filters.get('municipalities', [])
+        # Ensure default municipalities exist in the available options
+        default_municipalities = [m for m in default_municipalities if m in municipalities]
+        
+        selected_municipalities = st.sidebar.multiselect(
+            "Select Municipalities:",
+            options=municipalities,
+            default=default_municipalities,
+            help="Leave empty to include all municipalities",
+            key="municipalities_common"
+        )
     
-    elif page_type == "heavy_metal":
+    # Heavy Metal Filter
+    selected_heavy_metals = []
+    if page_type == "heavy_metal":
         st.sidebar.subheader("Heavy Metal-specific filters")
         # Get default from query params or use first heavy metal
         default_heavy_metal = saved_filters.get('selected_heavy_metal_detail', heavy_metals[0] if heavy_metals else None)
@@ -229,22 +255,7 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
         )
         additional_filters['selected_heavy_metal_detail'] = selected_heavy_metal_detail
 
-    # Common filters for all pages
-    if not selected_municipalities:
-        # Get default from query params
-        default_municipalities = saved_filters.get('municipalities', [])
-        # Ensure default municipalities exist in the available options
-        default_municipalities = [m for m in default_municipalities if m in municipalities]
-        
-        selected_municipalities = st.sidebar.multiselect(
-            "Select Municipalities:",
-            options=municipalities,
-            default=default_municipalities,
-            help="Leave empty to include all municipalities",
-            key="municipalities_common"
-        )
-    
-    if page_type == "overview" or page_type == 'municipality' or page_type == 'map':
+    elif page_type == "overview" or page_type == 'municipality' or page_type == 'map':
         # Get default from query params or use first 3 heavy metals
         default_heavy_metals = saved_filters.get('heavy_metals', heavy_metals[:3] if len(heavy_metals) >= 3 else heavy_metals)
         # Ensure default heavy metals exist in the available options
@@ -259,9 +270,8 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
             help="Select one or more heavy metals to analyze",
             key="heavy_metals_common"
         )
-    else:
-        selected_heavy_metals = []
     
+    # Land Use Filter
     # Get default from query params
     default_land_uses = saved_filters.get('land_uses', [])
     # Ensure default land uses exist in the available options
@@ -274,7 +284,8 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
         help="Leave empty to include all land uses",
         key="land_uses_common"
     )
-    
+
+    # Year Range Filter
     # Get default year range from query params
     default_year_range = saved_filters.get('year_range', (year_min, year_max))
     # Ensure the default year range is within bounds
@@ -302,6 +313,7 @@ def display_sidebar_filters(municipalities, heavy_metals, land_uses, year_min, y
     }
     
     # Update query parameters with current filter values
+    print('updating query params with', current_filters, selected_municipalities)  # --- IGNORE ---
     update_query_params(current_filters)
     
     return current_filters
