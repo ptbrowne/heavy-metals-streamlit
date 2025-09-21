@@ -2,6 +2,8 @@
 
 A comprehensive Streamlit dashboard for analyzing heavy metal concentrations in Swiss soils across different municipalities, land uses, and time periods.
 
+Data from [visualize.admin.ch](https://visualize.admin.ch/en/browse?previous=%7B%22order%22%3A%22SCORE%22%2C%22search%22%3A%22heavy+metal%22%7D&dataset=https%3A%2F%2Fenvironment.ld.admin.ch%2Ffoen%2Fubd006601%2F5&dataSource=Prod).
+
 ## Features
 
 ### 📊 Overview Dashboard
